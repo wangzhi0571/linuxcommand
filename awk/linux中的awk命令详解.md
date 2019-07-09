@@ -6,54 +6,45 @@ AWK是一种处理文本文件的语言，是一个强大的文本分析工具�
 
 ### 2、AWK语法
 
-`awk [选项参数] 'script' var=value file(s)`
-
-或
-
-`awk [选项参数] -f scriptfile var=value file(s)`
-
-选项参数的说明：
-
-```shell
-    -F fs or –field-separator fs
-    指定输入文件折分隔符，fs是一个字符串或者是一个正则表达式，如-F:
-
-    -v var=value or –asign var=value
-    赋值一个用户定义变量。
-
-    -f scripfile or –file scriptfile
-    从脚本文件中读取awk命令。
-
-    -mf nnn and -mr nnn
-    对nnn值设置内在限制，-mf选项限制分配给nnn的最大块数目；-mr选项限制记录的最大数目。这两个功能是Bell实验室版awk的扩展功能，在标准awk中不适用。
-
-    -W compact or –compat, -W traditional or –traditional
-    在兼容模式下运行awk。所以gawk的行为和标准的awk完全一样，所有的awk扩展都被忽略。
-
-    -W copyleft or –copyleft, -W copyright or –copyright
-    打印简短的版权信息。
-
-    -W help or –help, -W usage or –usage
-    打印全部awk选项和每个选项的简短说明。
-
-    -W lint or –lint
-    打印不能向传统unix平台移植的结构的警告。
-
-    -W lint-old or –lint-old
-    打印关于不能向传统unix平台移植的结构的警告。
-
-    -W posix
-    打开兼容模式。但有以下限制，不识别：/x、函数关键字、func、换码序列以及当fs是一个空格时，将新行作为一个域分隔符；操作符和=不能代替^和^=；fflush无效。
-
-    -W re-interval or –re-inerval
-    允许间隔正则表达式的使用，参考(grep中的Posix字符类)，如括号表达式[[:alpha:]]。
-
-    -W source program-text or –source program-text
-    使用program-text作为源代码，可与-f命令混用。
-
-    -W version or –version
-    打印bug报告信息的版本。
 ```
+awk -F|-f|-v 'BEGIN{ } / / {comand1;comand2} END{ }' file
+-F 定义列分隔符
+-f 指定调用脚本
+-v 定义变量
+' '引用代码块，awk执行语句必须包含在内
+BEGIN{ } 初始化代码块，在对每一行进行处理之前，初始化代码，主要是引用全局变量，设置FS分隔符
+{ } 命令代码块，包含一条或多条命令
+// 用来定义需要匹配的模式（字符串或者正则表达式），对满足匹配模式的行进行上条代码块的操作
+END{ }  结尾代码块，在对每一行进行处理之后再执行的代码块，主要是进行最终计算或输出结尾摘要信息
+```
+
+### 特殊要点
+
+```
+$0          表示整个当前行
+$1          每行第一个字段
+NF          字段数量变量
+NR          每行的记录号，多文件记录递增
+FNR         与NR类似，不过多文件记录不递增，每个文件都从1开始
+\t          制表符
+\n          换行符
+FS          BEGIN时定义分隔符
+RS          输入的记录分隔符， 默认为换行符(即文本是按一行一行输入)
+~           匹配，与==相比不是精确比较
+!~          不匹配，不精确比较
+==          等于，必须全部相等，精确比较
+!=          不等于，精确比较
+&&          逻辑与
+||          逻辑或
++           匹配时表示1个或1个以上
+/[0-9][0-9]+/    两个或两个以上数字
+/[0-9][0-9]*/    一个或一个以上数字
+FILENAME    文件名
+OFS         输出字段分隔符， 默认也是空格，可以改为制表符等
+ORS         输出的记录分隔符，默认为换行符,即处理结果也是一行一行输出到屏幕
+-F'[:#/]'   定义三个分隔符
+```
+
 ### 3、基本用法
 
 一段文本：log.txt
@@ -267,7 +258,7 @@ Bob     2415 40 57 62
 ```
 awk脚本如下：
 
-cat cal.awk
+cat cal.sh
 ```
 #!/bin/awk -f
 #运行前
@@ -284,7 +275,7 @@ printf "---------------------------------------------\n"
 math+=$3
 english+=$4
 computer+=$5
-printf "%-6s %-6s %4d %8d %8d %8d\n", $1, $2, $3,$4,$5, $3+$4+$5
+printf "%-6s %-6s %4d %8d %8d %8d\n", $1, $2, $3, $4, $5, $3 + $4 + $5
 }
 #运行后
 END {
